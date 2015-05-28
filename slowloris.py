@@ -27,6 +27,9 @@ def init_socket(ip):
     return s
 
 def main():
+    if len(sys.argv) != 2:
+        print("Usage: {} example.com".format(sys.argv[0]))
+        return
     ip = sys.argv[1]
     socket_count = 200
     log("Attacking {} with {} sockets.".format(ip, socket_count))
