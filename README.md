@@ -14,7 +14,7 @@ This exhausts the servers thread pool and the server can't reply to other people
 You can clone the git repo or install using **pip**. Here's how you run it.
 
 * `sudo pip3 install slowloris`
-* `slowloris example.com`
+* `slowloris --host example.com --sockets 200`
 
 That's all it takes to install and run slowloris.py.
 
@@ -22,7 +22,7 @@ If you want to clone using git instead of pip, here's how you do it.
 
 * `git clone https://github.com/gkbrk/slowloris.git`
 * `cd slowloris`
-* `python3 slowloris.py example.com`
+* `python3 slowloris.py --host example.com --sockets 200`
 
 ##License##
 
