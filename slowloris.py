@@ -27,12 +27,24 @@ def init_socket(ip):
     return s
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: {} example.com".format(sys.argv[0]))
+    if len(sys.argv) < 2:
+        print("Usage: {} example.com\n".format(sys.argv[0]))
         return
 
     ip = sys.argv[1]
-    socket_count = 200
+    socket_count = 0
+
+    if len(sys.argv) == 3:
+        print(sys.argv[2])
+        try:
+            socket_count = int(sys.argv[2])
+        except ValueError:
+            print("Can not cast a last parameter")
+            return     
+    else:
+        socket_count = 200
+        print("Note Usage: {} example.com 200".format(sys.argv[0]))
+
     log("Attacking {} with {} sockets.".format(ip, socket_count))
 
     log("Creating sockets...")
