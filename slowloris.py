@@ -1,3 +1,4 @@
+import argparse
 import socket
 import random
 import time
@@ -27,23 +28,13 @@ def init_socket(ip):
     return s
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: {} example.com\n".format(sys.argv[0]))
-        return
+    parser = argparse.ArgumentParser(description='Slowloris helps')
+    parser.add_argument("-d","--destination",dest="ip",type=str,required=True,help="website name e.g. example.com")
+    parser.add_argument("-c","--count",dest="socket_count",default=200,type=int,help="number of socket for attacking (default: 200) e.g. 200")
 
-    ip = sys.argv[1]
-    socket_count = 0
-
-    if len(sys.argv) == 3:
-        print(sys.argv[2])
-        try:
-            socket_count = int(sys.argv[2])
-        except ValueError:
-            print("Can not cast a last parameter")
-            return     
-    else:
-        socket_count = 200
-        print("Note Usage: {} example.com 200".format(sys.argv[0]))
+    args = parser.parse_args()
+    ip = args.ip
+    socket_count = args.socket_count
 
     log("Attacking {} with {} sockets.".format(ip, socket_count))
 
