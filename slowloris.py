@@ -1,11 +1,11 @@
 import socket, random, time, sys, argparse, random
 
 parser = argparse.ArgumentParser(description="Stress test some sites.")
-parser.add_argument('--host', help="Host to preform stress test on.")
-parser.add_argument('--port', default=80, help="Port of webserver, usually 80.", type=int)
-parser.add_argument('--sockets', default=8, help="Number of sockets to use in the test.", type=int)
-parser.add_argument('--verbose', dest="verbose", action="store_true", help="Enables Verbose mode.")
-parser.add_argument('--randuseragents', dest="randuseragent", action="store_true", help="Enables random useragent mode.")
+parser.add_argument('-H', '--host', help="Host to preform stress test on.")
+parser.add_argument('-p', '--port', default=80, help="Port of webserver, usually 80.", type=int)
+parser.add_argument('-s', '--sockets', default=8, help="Number of sockets to use in the test.", type=int)
+parser.add_argument('-v', '--verbose', dest="verbose", action="store_true", help="Enables Verbose mode.")
+parser.add_argument('-ua', '--randuseragents', dest="randuseragent", action="store_true", help="Enables random useragent mode.")
 parser.set_defaults(verbose=False)
 parser.set_defaults(randuseragent=False)
 args = parser.parse_args()
