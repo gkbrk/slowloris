@@ -1,3 +1,4 @@
+import argparse
 import socket
 import random
 import time
@@ -27,12 +28,14 @@ def init_socket(ip):
     return s
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: {} example.com".format(sys.argv[0]))
-        return
+    parser = argparse.ArgumentParser(description='Slowloris helps')
+    parser.add_argument("-d","--destination",dest="ip",type=str,required=True,help="website name e.g. example.com")
+    parser.add_argument("-c","--count",dest="socket_count",default=200,type=int,help="number of socket for attacking (default: 200) e.g. 200")
 
-    ip = sys.argv[1]
-    socket_count = 200
+    args = parser.parse_args()
+    ip = args.ip
+    socket_count = args.socket_count
+
     log("Attacking {} with {} sockets.".format(ip, socket_count))
 
     log("Creating sockets...")
