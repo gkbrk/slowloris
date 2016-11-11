@@ -14,6 +14,11 @@ if len(sys.argv)==1:
     parser.print_help()
     sys.exit(1)
 
+if not args.host:
+    print("Host required!")
+    parser.print_help()
+    sys.exit(1)
+
 if args.verbose == True:
     log_level = 2
 else:
