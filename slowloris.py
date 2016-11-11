@@ -10,7 +10,12 @@ parser.set_defaults(verbose=False)
 parser.set_defaults(randuseragent=False)
 args = parser.parse_args()
 
-if len(sys.argv)==1:
+if len(sys.argv)<=1:
+    parser.print_help()
+    sys.exit(1)
+
+if not args.host:
+    print("Host required!")
     parser.print_help()
     sys.exit(1)
 
@@ -54,7 +59,7 @@ user_agents = [
 def init_socket(ip):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(4)
-    s.connect((ip,80))
+    s.connect((ip,args.port))
 
     s.send("GET /?{} HTTP/1.1\r\n".format(random.randint(0, 2000)).encode("utf-8"))
     if args.randuseragent:
