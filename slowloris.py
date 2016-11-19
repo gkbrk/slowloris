@@ -25,7 +25,7 @@ else:
     log_level = 1
 
 def log(text, level=1):
-    if log_level >= level:
+    if log_level > level:
         print(text)
 
 list_of_sockets = []
