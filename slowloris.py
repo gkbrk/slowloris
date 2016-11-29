@@ -6,8 +6,12 @@ parser.add_argument('-p', '--port', default=80, help="Port of webserver, usually
 parser.add_argument('-s', '--sockets', default=150, help="Number of sockets to use in the test", type=int)
 parser.add_argument('-v', '--verbose', dest="verbose", action="store_true", help="Increases logging")
 parser.add_argument('-ua', '--randuseragents', dest="randuseragent", action="store_true", help="Randomizes user-agents with each request")
+parser.add_argument('-x', '--useproxy', dest="useproxy", action="store_true", help="Use a SOCKS5 proxy for connecting")
+parser.add_argument('--proxy-host', default="127.0.0.1", help="SOCKS5 proxy host")
+parser.add_argument('--proxy-port', default="8080", help="SOCKS5 proxy port", type=int)
 parser.set_defaults(verbose=False)
 parser.set_defaults(randuseragent=False)
+parser.set_defaults(useproxy=False)
 args = parser.parse_args()
 
 if len(sys.argv)<=1:
@@ -18,6 +22,12 @@ if not args.host:
     print("Host required!")
     parser.print_help()
     sys.exit(1)
+
+if args.useproxy:
+    print("Using SOCKS5 proxy for connecting...")
+    import socks
+    socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, args.proxy_host, args.proxy_port)
+    socket.socket = socks.socksocket
 
 if args.verbose == True:
     logging.basicConfig(format="[%(asctime)s] %(message)s", datefmt="%d-%m-%Y %H:%M:%S", level=logging.DEBUG)
