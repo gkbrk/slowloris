@@ -25,10 +25,12 @@ if not args.host:
 
 if args.useproxy:
     print("Using SOCKS5 proxy for connecting...")
-    import socks
-    socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, args.proxy_host, args.proxy_port)
-    socket.socket = socks.socksocket
-
+    try:
+        import socks
+        socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, args.proxy_host, args.proxy_port)
+        socket.socket = socks.socksocket
+    except ImportError:
+        print("Socks Proxy Library Not Available!")
 if args.verbose == True:
     logging.basicConfig(format="[%(asctime)s] %(message)s", datefmt="%d-%m-%Y %H:%M:%S", level=logging.DEBUG)
 else:
