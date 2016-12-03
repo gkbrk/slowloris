@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import socket, random, time, sys, argparse, random, logging
 
 parser = argparse.ArgumentParser(description="Slowloris, low bandwidth stress test tool for websites")
