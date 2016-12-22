@@ -10,10 +10,11 @@ parser.add_argument('-ua', '--randuseragents', dest="randuseragent", action="sto
 parser.add_argument('-x', '--useproxy', dest="useproxy", action="store_true", help="Use a SOCKS5 proxy for connecting")
 parser.add_argument('--proxy-host', default="127.0.0.1", help="SOCKS5 proxy host")
 parser.add_argument('--proxy-port', default="8080", help="SOCKS5 proxy port", type=int)
-parser.add_argument("--https", dest="https", action="store_true", help="Whether to use https requests")
+parser.add_argument("--https", dest="https", action="store_true", help="Use HTTPS for the requests")
 parser.set_defaults(verbose=False)
 parser.set_defaults(randuseragent=False)
 parser.set_defaults(useproxy=False)
+parser.set_defaults(https=False)
 args = parser.parse_args()
 
 if len(sys.argv)<=1:
@@ -26,13 +27,17 @@ if not args.host:
     sys.exit(1)
 
 if args.useproxy:
-    print("Using SOCKS5 proxy for connecting...")
+    # Tries to import to external "socks" library
+    # and monkey patches socket.socket to connect over
+    # the proxy by default
     try:
         import socks
         socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, args.proxy_host, args.proxy_port)
         socket.socket = socks.socksocket
+        logging.info("Using SOCKS5 proxy for connecting...")
     except ImportError:
-        print("Socks Proxy Library Not Available!")
+        logging.error("Socks Proxy Library Not Available!")
+
 if args.verbose == True:
     logging.basicConfig(format="[%(asctime)s] %(message)s", datefmt="%d-%m-%Y %H:%M:%S", level=logging.DEBUG)
 else:
@@ -71,6 +76,7 @@ def init_socket(ip):
     s.settimeout(4)
     if args.https:
         s = ssl.wrap_socket(s)
+    
     s.connect((ip,args.port))
 
     s.send("GET /?{} HTTP/1.1\r\n".format(random.randint(0, 2000)).encode("utf-8"))
