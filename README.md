@@ -37,3 +37,4 @@ It is possible to modify the behaviour of slowloris with command-line arguments.
 
 ## License
 The code is licensed under the MIT License.
+Jython binarys under Jython License
