@@ -8,7 +8,7 @@ import sys
 import time
 
 parser = argparse.ArgumentParser(description="Slowloris, low bandwidth stress test tool for websites")
-parser.add_argument('host', nargs="?", help="Host to preform stress test on")
+parser.add_argument('host', nargs="?", help="Host to perform stress test on")
 parser.add_argument('-p', '--port', default=80, help="Port of webserver, usually 80", type=int)
 parser.add_argument('-s', '--sockets', default=150, help="Number of sockets to use in the test", type=int)
 parser.add_argument('-v', '--verbose', dest="verbose", action="store_true", help="Increases logging")
