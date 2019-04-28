@@ -9,7 +9,7 @@ import time
 
 parser = argparse.ArgumentParser(description="Slowloris, low bandwidth stress test tool for websites")
 parser.add_argument('host', nargs="?", help="Host to perform stress test on")
-parser.add_argument('-p', '--port', default=80, help="Port of webserver, usually 80", type=int)
+parser.add_argument('-p', '--port', help="Port of webserver, usually 80", type=int)
 parser.add_argument('-s', '--sockets', default=150, help="Number of sockets to use in the test", type=int)
 parser.add_argument('-v', '--verbose', dest="verbose", action="store_true", help="Increases logging")
 parser.add_argument('-ua', '--randuseragents', dest="randuseragent", action="store_true", help="Randomizes user-agents with each request")
@@ -78,7 +78,25 @@ user_agents = [
     "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:49.0) Gecko/20100101 Firefox/49.0",
 ]
 
+def portScanner():
+
+    sockk = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sockk.settimeout(2)                                      #2 Second Timeout
+    if args.port == True:
+        result = sockk.connect_ex((args.host,args.port))
+    else:
+        for i in range (1,90000):
+            result = sockk.connect_ex(args.host,i)
+            if result == 0:
+                return i
+            else:
+                continue
+    if result == 0:
+        return args.port
+
+
 def init_socket(ip):
+    portScanner()
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(4)
     if args.https:
