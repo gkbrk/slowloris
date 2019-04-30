@@ -86,7 +86,7 @@ def check_socket(host, port):
         else:
             return 0
 
-for socket_count in range(80,1000000):
+for socket_count in range(80,65537):
     value = check_socket(args.host,socket_count)
     if value == 1:
         print("Attacking through port",socket_count)
