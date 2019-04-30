@@ -6,6 +6,7 @@ import socket
 import ssl
 import sys
 import time
+from contextlib import closing
 
 parser = argparse.ArgumentParser(description="Slowloris, low bandwidth stress test tool for websites")
 parser.add_argument('host', nargs="?", help="Host to perform stress test on")
@@ -77,6 +78,23 @@ user_agents = [
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36",
     "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:49.0) Gecko/20100101 Firefox/49.0",
 ]
+
+def check_socket(host, port):
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+        if sock.connect_ex((host, port)) == 0:
+            return 1
+        else:
+            return 0
+
+for socket_count in range(80,1000000):
+    value = check_socket(args.host,socket_count)
+    if value == 1:
+        print("Attacking through port",socket_count)
+        args.port = socket_count
+        break
+    if value == 0:
+        continue
+
 
 def init_socket(ip):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
