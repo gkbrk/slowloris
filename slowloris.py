@@ -3,7 +3,6 @@ import argparse
 import logging
 import random
 import socket
-import ssl
 import sys
 import time
 
@@ -49,6 +48,10 @@ if args.verbose:
     logging.basicConfig(format="[%(asctime)s] %(message)s", datefmt="%d-%m-%Y %H:%M:%S", level=logging.DEBUG)
 else:
     logging.basicConfig(format="[%(asctime)s] %(message)s", datefmt="%d-%m-%Y %H:%M:%S", level=logging.INFO)
+
+if args.https:
+    logging.info("Importing ssl module")
+    import ssl
 
 list_of_sockets = []
 user_agents = [
