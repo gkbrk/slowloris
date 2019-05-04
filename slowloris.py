@@ -17,6 +17,7 @@ parser.add_argument('-x', '--useproxy', dest="useproxy", action="store_true", he
 parser.add_argument('--proxy-host', default="127.0.0.1", help="SOCKS5 proxy host")
 parser.add_argument('--proxy-port', default="8080", help="SOCKS5 proxy port", type=int)
 parser.add_argument("--https", dest="https", action="store_true", help="Use HTTPS for the requests")
+parser.add_argument("--sleeptime", dest="sleeptime", default=15, type=int, help="Time to sleep between each header sent.")
 parser.set_defaults(verbose=False)
 parser.set_defaults(randuseragent=False)
 parser.set_defaults(useproxy=False)
@@ -125,7 +126,8 @@ def main():
                         list_of_sockets.append(s)
                 except socket.error:
                     break
-            time.sleep(15)
+            logging.debug("Sleeping for %d seconds", args.sleeptime)
+            time.sleep(args.sleeptime)
 
         except (KeyboardInterrupt, SystemExit):
             print("\nStopping Slowloris...")
