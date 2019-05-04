@@ -108,7 +108,8 @@ def main():
         try:
             logging.debug("Creating socket nr %s", _)
             s = init_socket(ip)
-        except socket.error:
+        except socket.error as e:
+            logging.debug(e)
             break
         list_of_sockets.append(s)
 
@@ -127,13 +128,14 @@ def main():
                     s = init_socket(ip)
                     if s:
                         list_of_sockets.append(s)
-                except socket.error:
+                except socket.error as e:
+                    logging.debug(e)
                     break
             logging.debug("Sleeping for %d seconds", args.sleeptime)
             time.sleep(args.sleeptime)
 
         except (KeyboardInterrupt, SystemExit):
-            print("\nStopping Slowloris...")
+            logging.info("Stopping Slowloris")
             break
 
 if __name__ == "__main__":
