@@ -10,4 +10,5 @@ setup(
     author_email="webdosusb@gmail.com",
     url="https://github.com/gkbrk/slowloris",
     keywords=["dos", "http", "slowloris"],
+    license="MIT",
 )
