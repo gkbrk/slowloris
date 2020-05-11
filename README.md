@@ -24,6 +24,10 @@ If you want to clone using git instead of pip, here's how you do it.
 * `cd slowloris`
 * `python3 slowloris.py example.com`
 
+You can use this docker image too, in case you don't have pip installed locally or don't want to install system-wide.
+
+* `docker run --rm aminvakil/slowloris example.com`
+
 ### SOCKS5 proxy support
 
 However, if you plan on using the `-x` option in order to use a SOCKS5 proxy for connecting instead of a direct connection over your IP address, you will need to install the `PySocks` library (or any other implementation of the `socks` library) as well. [`PySocks`](https://github.com/Anorov/PySocks) is a fork from [`SocksiPy`](http://socksipy.sourceforge.net/) by GitHub user @Anorov and can easily be installed by adding `PySocks` to the `pip` command above or running it again like so:
