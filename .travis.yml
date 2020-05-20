@@ -1,0 +1,11 @@
+os: linux
+dist: bionic
+language: shell
+env:
+  global:
+    - HADOLINT_VERSION=1.17.1
+services:
+- docker
+script:
+- docker build -t aminvakil/slowloris:local .
+- docker run --rm aminvakil/slowloris:local
