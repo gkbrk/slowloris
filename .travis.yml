@@ -8,4 +8,3 @@ services:
 - docker
 script:
 - docker build -t aminvakil/slowloris:local .
-- docker run --rm aminvakil/slowloris:local
