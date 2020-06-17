@@ -16,7 +16,7 @@ parser.add_argument(
 parser.add_argument(
     "-s",
     "--sockets",
-    default=150,
+    default=500,
     help="Number of sockets to use in the test",
     type=int,
 )
@@ -45,7 +45,7 @@ parser.add_argument(
 parser.add_argument(
     "--sleeptime",
     dest="sleeptime",
-    default=15,
+    default=2,
     type=int,
     help="Time to sleep between each header sent.",
 )
@@ -126,7 +126,7 @@ user_agents = [
 
 def init_socket(ip):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.settimeout(4)
+    s.settimeout(2)
     if args.https:
         s = ssl.wrap_socket(s)
 
