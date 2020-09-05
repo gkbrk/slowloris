@@ -35,5 +35,26 @@ You can then use the `-x` option to activate SOCKS5 support and the `--proxy-hos
 ## Configuration options
 It is possible to modify the behaviour of slowloris with command-line arguments.
 
+-p, --port
+Port of webserver, usually 80
+
+-s, --sockets
+Number of sockets to use in the test
+
+-v, --verbose
+Increases logging (output on terminal)
+
+-ua, --randuseragents
+Randomizes user-agents with each request
+
+-x, --useproxy
+Use a SOCKS5 proxy for connecting
+
+--https
+Use HTTPS for the requests
+
+--sleeptime
+Time to sleep between each header sent
+
 ## License
 The code is licensed under the MIT License.
