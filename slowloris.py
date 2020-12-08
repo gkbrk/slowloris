@@ -21,7 +21,11 @@ parser.add_argument(
     type=int,
 )
 parser.add_argument(
-    "-v", "--verbose", dest="verbose", action="store_true", help="Increases logging"
+    "-v",
+    "--verbose",
+    dest="verbose",
+    action="store_true",
+    help="Increases logging",
 )
 parser.add_argument(
     "-ua",
@@ -37,10 +41,17 @@ parser.add_argument(
     action="store_true",
     help="Use a SOCKS5 proxy for connecting",
 )
-parser.add_argument("--proxy-host", default="127.0.0.1", help="SOCKS5 proxy host")
-parser.add_argument("--proxy-port", default="8080", help="SOCKS5 proxy port", type=int)
 parser.add_argument(
-    "--https", dest="https", action="store_true", help="Use HTTPS for the requests"
+    "--proxy-host", default="127.0.0.1", help="SOCKS5 proxy host"
+)
+parser.add_argument(
+    "--proxy-port", default="8080", help="SOCKS5 proxy port", type=int
+)
+parser.add_argument(
+    "--https",
+    dest="https",
+    action="store_true",
+    help="Use HTTPS for the requests",
 )
 parser.add_argument(
     "--sleeptime",
@@ -71,7 +82,9 @@ if args.useproxy:
     try:
         import socks
 
-        socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, args.proxy_host, args.proxy_port)
+        socks.setdefaultproxy(
+            socks.PROXY_TYPE_SOCKS5, args.proxy_host, args.proxy_port
+        )
         socket.socket = socks.socksocket
         logging.info("Using SOCKS5 proxy for connecting...")
     except ImportError:
@@ -174,7 +187,8 @@ def main():
     while True:
         try:
             logging.info(
-                "Sending keep-alive headers... Socket count: %s", len(list_of_sockets)
+                "Sending keep-alive headers... Socket count: %s",
+                len(list_of_sockets),
             )
             for s in list(list_of_sockets):
                 try:
