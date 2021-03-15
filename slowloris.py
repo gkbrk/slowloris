@@ -103,9 +103,22 @@ else:
         level=logging.INFO,
     )
 
+
+def send_line(self, line):
+    line = f"{line}\r\n"
+    self.send(line.encode("utf-8"))
+
+
+def send_header(self, name, value):
+    self.send_line(f"{name}: {value}")
+
+
 if args.https:
     logging.info("Importing ssl module")
     import ssl
+
+    setattr(ssl.SSLSocket, "send_line", send_line)
+    setattr(ssl.SSLSocket, "send_header", send_header)
 
 list_of_sockets = []
 user_agents = [
@@ -136,17 +149,8 @@ user_agents = [
     "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:49.0) Gecko/20100101 Firefox/49.0",
 ]
 
-
-class _(socket.socket):
-    def send_line(self, line):
-        line = f"{line}\r\n"
-        self.send(line.encode("utf-8"))
-
-    def send_header(self, name, value):
-        self.send_line(f"{name}: {value}")
-
-
-socket.socket = _
+setattr(socket.socket, "send_line", send_line)
+setattr(socket.socket, "send_header", send_header)
 
 
 def init_socket(ip):
@@ -154,7 +158,8 @@ def init_socket(ip):
     s.settimeout(4)
 
     if args.https:
-        s = ssl.wrap_socket(s)
+        ctx = ssl.create_default_context()
+        s = ctx.wrap_socket(s, server_hostname=args.host)
 
     s.connect((ip, args.port))
 
