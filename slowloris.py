@@ -3,7 +3,6 @@ import argparse
 import logging
 import random
 import socket
-import ssl
 import sys
 import time
 
