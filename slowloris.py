@@ -3,6 +3,7 @@ import argparse
 import logging
 import random
 import socket
+import ssl
 import sys
 import time
 
@@ -137,16 +138,17 @@ user_agents = [
 ]
 
 
-class _(socket.socket):
-    def send_line(self, line):
-        line = f"{line}\r\n"
-        self.send(line.encode("utf-8"))
+def send_line(self, line):
+  line = f"{line}\r\n"
+  self.send(line.encode("utf-8"))
 
-    def send_header(self, name, value):
-        self.send_line(f"{name}: {value}")
+def send_header(self, name, value):
+  self.send_line(f"{name}: {value}")
 
-
-socket.socket = _
+setattr(ssl.SSLSocket, "send_line", send_line)
+setattr(ssl.SSLSocket, "send_header", send_header)
+setattr(socket.socket, "send_line", send_line)
+setattr(socket.socket, "send_header", send_header)
 
 
 def init_socket(ip):
