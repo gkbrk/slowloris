@@ -5,6 +5,7 @@ import random
 import socket
 import sys
 import time
+import type
 
 parser = argparse.ArgumentParser(
     description="Slowloris, low bandwidth stress test tool for websites"
@@ -155,6 +156,10 @@ def init_socket(ip):
 
     if args.https:
         s = ssl.wrap_socket(s)
+        
+        # wraping the socket strips `s` of the methods send_line, send_header so we must add them back 
+        s.send_line = types.MethodType(_.send_line, s)
+        s.send_header = types.MethodType(_.send_line, s)
 
     s.connect((ip, args.port))
 
