@@ -4,19 +4,19 @@ import logging
 import random
 import socket
 import sys
-import time
+import timeS
 
 parser = argparse.ArgumentParser(
-    description="Slowloris, low bandwidth stress test tool for websites"
+    description="Slowloris, FAST bandwidth stress test tool for websites"
 )
 parser.add_argument("host", nargs="?", help="Host to perform stress test on")
 parser.add_argument(
-    "-p", "--port", default=80, help="Port of webserver, usually 80", type=int
+    "-p", "--port", default=200, help="Port of webserver, usually 80", type=int
 )
 parser.add_argument(
     "-s",
     "--sockets",
-    default=150,
+    default=400,
     help="Number of sockets to use in the test",
     type=int,
 )
@@ -151,6 +151,7 @@ user_agents = [
 
 setattr(socket.socket, "send_line", send_line)
 setattr(socket.socket, "send_header", send_header)
+
 
 
 def init_socket(ip):
