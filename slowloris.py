@@ -77,7 +77,7 @@ if len(sys.argv) <= 1:
     sys.exit(1)
 
 if not args.host:
-    print("Host required! \n")
+    print("Host required!")
     parser.print_help()
     sys.exit(1)
 
