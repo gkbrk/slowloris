@@ -164,9 +164,9 @@ def init_socket(ip):
     s.settimeout(4)
 
     if args.https:
+        ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
-        ctx = ssl.create_default_context()
         s = ctx.wrap_socket(s, server_hostname=args.host)
 
     s.connect((ip, args.port))
