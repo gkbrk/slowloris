@@ -153,7 +153,7 @@ setattr(socket.socket, "send_line", send_line)
 setattr(socket.socket, "send_header", send_header)
 
 
-def init_socket(ip):
+def init_socket(ip: str):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(4)
 
@@ -197,7 +197,7 @@ def slowloris_iteration():
     logging.info(f"Creating {diff} new sockets...")
     for _ in range(diff):
         try:
-            s = init_socket(args.ip)
+            s = init_socket(args.host)
             if not s:
                 continue
             list_of_sockets.append(s)
