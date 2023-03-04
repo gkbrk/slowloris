@@ -74,6 +74,19 @@ if not args.host:
     print("Host required!")
     parser.print_help()
     sys.exit(1)
+    
+if args.verbose:
+    logging.basicConfig(
+        format="[%(asctime)s] %(message)s",
+        datefmt="%d-%m-%Y %H:%M:%S",
+        level=logging.DEBUG,
+    )
+else:
+    logging.basicConfig(
+        format="[%(asctime)s] %(message)s",
+        datefmt="%d-%m-%Y %H:%M:%S",
+        level=logging.INFO,
+    )
 
 if args.useproxy:
     # Tries to import to external "socks" library
@@ -89,20 +102,6 @@ if args.useproxy:
         logging.info("Using SOCKS5 proxy for connecting...")
     except ImportError:
         logging.error("Socks Proxy Library Not Available!")
-
-if args.verbose:
-    logging.basicConfig(
-        format="[%(asctime)s] %(message)s",
-        datefmt="%d-%m-%Y %H:%M:%S",
-        level=logging.DEBUG,
-    )
-else:
-    logging.basicConfig(
-        format="[%(asctime)s] %(message)s",
-        datefmt="%d-%m-%Y %H:%M:%S",
-        level=logging.INFO,
-    )
-
 
 def send_line(self, line):
     line = f"{line}\r\n"
@@ -154,7 +153,7 @@ setattr(socket.socket, "send_header", send_header)
 
 
 def init_socket(ip: str):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, proto=0)
     s.settimeout(4)
 
     if args.https:
