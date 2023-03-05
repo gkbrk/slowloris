@@ -22,7 +22,7 @@ To use PySlow, you can clone this GitHub repository and run the main.py file:
 
 bash
 
-git clone https://github.com/<your-username>/pyslow.git
+git clone https://github.com/astrohippie/slowloris/blob/astrohippie-patch-1/PySlow.py
 cd pyslow
 python main.py
 
