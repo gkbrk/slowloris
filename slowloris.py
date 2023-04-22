@@ -89,6 +89,7 @@ if args.useproxy:
         logging.info("Using SOCKS5 proxy for connecting...")
     except ImportError:
         logging.error("Socks Proxy Library Not Available!")
+        sys.exit(1)
 
 if args.verbose:
     logging.basicConfig(
