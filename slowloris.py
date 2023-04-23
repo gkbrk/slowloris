@@ -38,14 +38,8 @@ parser.add_argument(
     "-x",
     "--useproxy",
     dest="useproxy",
-    action="store_true",
-    help="Use a SOCKS5 proxy for connecting",
-)
-parser.add_argument(
-    "--proxy-host", default="127.0.0.1", help="SOCKS5 proxy host"
-)
-parser.add_argument(
-    "--proxy-port", default="8080", help="SOCKS5 proxy port", type=int
+    type=str,
+    help="Use a SOCKS5 proxy for connecting. Usage {ip}:{port}",
 )
 parser.add_argument(
     "--https",
@@ -82,14 +76,15 @@ if args.useproxy:
     try:
         import socks
 
+        proxy_split = args.useproxy.split(':')
+
         socks.setdefaultproxy(
-            socks.PROXY_TYPE_SOCKS5, args.proxy_host, args.proxy_port
+            socks.PROXY_TYPE_SOCKS5, proxy_split[0], int(proxy_split[1])
         )
         socket.socket = socks.socksocket
         logging.info("Using SOCKS5 proxy for connecting...")
     except ImportError:
         logging.error("Socks Proxy Library Not Available!")
-        sys.exit(1)
 
 if args.verbose:
     logging.basicConfig(
