@@ -91,18 +91,11 @@ if args.useproxy:
         logging.error("Socks Proxy Library Not Available!")
         sys.exit(1)
 
-if args.verbose:
-    logging.basicConfig(
-        format="[%(asctime)s] %(message)s",
-        datefmt="%d-%m-%Y %H:%M:%S",
-        level=logging.DEBUG,
-    )
-else:
-    logging.basicConfig(
-        format="[%(asctime)s] %(message)s",
-        datefmt="%d-%m-%Y %H:%M:%S",
-        level=logging.INFO,
-    )
+logging.basicConfig(
+    format="[%(asctime)s] %(message)s",
+    datefmt="%d-%m-%Y %H:%M:%S",
+    level=logging.DEBUG if args.verbose else logging.INFO,
+)
 
 
 def send_line(self, line):
