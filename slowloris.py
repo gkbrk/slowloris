@@ -104,7 +104,7 @@ else:
     exit(1)
 
 if https != arghttps:
-    logging.warningprint("Command line parameter --https is being overridden by URL.")
+    logging.warning("Command line parameter --https is being overridden by URL.")
 
 
 if out.port == None: # Set port to cmdline param if no port defined in URL
