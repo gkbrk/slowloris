@@ -75,27 +75,68 @@ if not args.host:
     parser.print_help()
     sys.exit(1)
 
-if args.useproxy:
-    # Tries to import to external "socks" library
-    # and monkey patches socket.socket to connect over
-    # the proxy by default
-    try:
-        import socks
-
-        socks.setdefaultproxy(
-            socks.PROXY_TYPE_SOCKS5, args.proxy_host, args.proxy_port
-        )
-        socket.socket = socks.socksocket
-        logging.info("Using SOCKS5 proxy for connecting...")
-    except ImportError:
-        logging.error("Socks Proxy Library Not Available!")
-        sys.exit(1)
-
 logging.basicConfig(
     format="[%(asctime)s] %(message)s",
     datefmt="%d-%m-%Y %H:%M:%S",
     level=logging.DEBUG if args.verbose else logging.INFO,
 )
+
+if args.useproxy:
+    class sock5socket(socket.socket):
+        proxy_default = None
+        def __init__(self, family=socket.AF_INET, type=socket.SOCK_STREAM,
+                     proto=0, *args, **kwargs):
+            super(sock5socket, self).__init__(family, type, proto,
+                                              *args, **kwargs)
+            if self.proxy_default:
+                self.proxy = self.proxy_default
+            else:
+                self.proxy = (None, None)
+
+        def _negotiate_sock5(self, dest_addr, dest_port):
+            self.sendall(b"\x05\x01\x00")
+            chosen_auth = self.recv(2)
+            if chosen_auth[0:1] != b"\x05":
+                raise socket.error("SOCK5 proxy send invalid data")
+            if chosen_auth[1:2] != b"\x00":
+                raise socket.error("Only support no authetication")
+
+            # Connection request
+            self.sendall(b"\x05\x01\x00\x01" +
+                         socket.inet_aton(dest_addr) +
+                         dest_port.to_bytes(2, "big"))
+            response = self.recv(4)
+            if response[0:1] != b"\x05":
+                raise socket.error("SOCK5 proxy send invalid data")
+            if response[1:2] != b"\x00":
+                raise socket.error("Connection request failed")
+
+            # Flush the remaining data
+            if response[3:4] == b"\x01":
+                self.recv(6)
+            elif response[3:4] == b"\x03":
+                addr_len = self.recv(1)
+                self.recv(addr_len + 2)
+            elif response[3:4] == b"\x04":
+                self.recv(18)
+
+        def connect(self, dest_pair):
+            try:
+                super(sock5socket, self).connect(self.proxy)
+            except socket.error:
+                proxy_addr, proxy_port = self.proxy
+                raise socket.error(
+                        "Error connecting to SOCKS5 proxy {proxy_addr}:{proxy_port}")
+
+            dest_addr, dest_port = dest_pair
+            dest_addr = socket.gethostbyname(dest_addr)
+            self._negotiate_sock5(dest_addr, dest_port)
+
+    # Monkey patches socket.socket to connect over
+    # the proxy by default
+    sock5socket.proxy_default = (args.proxy_host, args.proxy_port)
+    socket.socket = sock5socket
+    logging.info("Using SOCKS5 proxy for connecting...")
 
 
 def send_line(self, line):
